@@ -1,0 +1,12 @@
+# HELP http_server_requests_seconds
+# TYPE http_server_requests_seconds histogram
+http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.05",} 788.0
+http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.1",} 788.0
+http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.25",} 788.0
+http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.5",} 788.0
+http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="+Inf",} 788.0
+http_server_requests_seconds_count{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",} 788.0
+http_server_requests_seconds_sum{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",} 2.542056441
+# HELP http_server_requests_seconds_max
+# TYPE http_server_requests_seconds_max gauge
+http_server_requests_seconds_max{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",} 0.004781586

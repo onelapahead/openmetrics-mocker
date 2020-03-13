@@ -1,0 +1,98 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openmetrics-mocker
+  labels:
+    app: openmetrics-mocker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openmetrics-mocker
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: openmetrics-mocker
+      annotations:
+        ad.datadoghq.com/web.check_names: |-
+          [
+            "openmetrics",
+            "openmetrics"
+          ]
+        ad.datadoghq.com/web.init_configs: |-
+          [
+            {},
+            {}
+          ]
+        ad.datadoghq.com/web.instances: |-
+          [
+            {
+              "prometheus_url": "http://%%host%%:8080/metrics",
+              "namespace": "openmetrics-mocker",
+              "metrics": ["*"],
+              "type_overrides": {},
+              "send_histogram_buckets": true,
+              "send_monotonic_counter": true,
+              "send_distribution_buckets": false,
+              "send_distribution_counts_as_monotonic": true
+            },
+            {
+              "prometheus_url": "http://%%host%%:8080/metrics",
+              "namespace": "openmetrics-mocker",
+              "metrics": ["http_server_requests_seconds*"],
+              "type_overrides": {},
+              "send_histogram_buckets": true,
+              "send_monotonic_counter": true,
+              "send_distribution_buckets": true,
+              "send_distribution_counts_as_monotonic": true
+            }
+          ]
+        ad.datadoghq.com/web.tags: |-
+          {
+            "app": "openmetrics-mocker",
+          }
+        prometheus.io/path: /metrics
+        prometheus.io/port: '8080'
+        prometheus.io/scrape: 'true'
+    spec:
+      volumes:
+        - name: openmetrics-mocker-metrics
+          configMap:
+            name: openmetrics-mocker-metrics
+      containers:
+        - name: web
+          imagePullPolicy: Always
+          image: brix4dayz/openmetrics-mocker:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: PROM_FILEPATH
+              value: /etc/openmetrics-mocker/prom.txt
+          volumeMounts:
+            - mountPath: /etc/openmetrics-mocker/
+              name: openmetrics-mocker-metrics
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openmetrics-mocker-metrics
+  labels:
+    app: openmetrics-mocker
+data:
+  prom.txt: |
+    # HELP http_server_requests_seconds
+    # TYPE http_server_requests_seconds histogram
+    http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.05",} 0.0
+    http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.1",} 0.0
+    http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.25",} 0.0
+    http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="0.5",} 0.0
+    http_server_requests_seconds_bucket{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",le="+Inf",} 1.0
+    http_server_requests_seconds_count{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",} 1.0
+    http_server_requests_seconds_sum{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",} 1.0
+    # HELP http_server_requests_seconds_max
+    # TYPE http_server_requests_seconds_max gauge
+    http_server_requests_seconds_max{exception="None",method="GET",outcome="SUCCESS",status="200",uri="/api",} 1.0
